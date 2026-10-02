@@ -43,7 +43,10 @@ interface NineRouterApi {
             true
         } catch (e: NineRouterException) {
             when (e.error) {
-                NineRouterError.Unauthorized -> throw e
+                // Configuration problems surface to the caller; they are not dead models.
+                NineRouterError.Unauthorized,
+                NineRouterError.InvalidUrl,
+                -> throw e
                 is NineRouterError.ModelUnavailable,
                 is NineRouterError.NetworkError,
                 is NineRouterError.ServerError,
