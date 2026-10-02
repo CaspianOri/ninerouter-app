@@ -15,8 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import id.ninerouter.app.data.DataStoreChatHistoryRepository
-import id.ninerouter.app.data.EncryptedCredentialStore
 import id.ninerouter.app.data.DataStoreSettingsRepository
+import id.ninerouter.app.data.ChatHistoryRepository
+import id.ninerouter.app.data.EncryptedCredentialStore
+import id.ninerouter.app.data.SettingsRepository
 import id.ninerouter.app.data.settingsDataStore
 import id.ninerouter.app.ui.AppNav
 import id.ninerouter.app.ui.rememberApiClient
