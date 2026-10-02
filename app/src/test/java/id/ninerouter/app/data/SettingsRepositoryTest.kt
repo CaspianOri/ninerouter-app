@@ -1,6 +1,6 @@
 package id.ninerouter.app.data
 
-import androidx.datastore.preferences.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import app.cash.turbine.test
 import java.io.File
 import kotlinx.coroutines.CoroutineScope

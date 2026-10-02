@@ -1,6 +1,6 @@
 package id.ninerouter.app.ui.settings
 
-import androidx.datastore.preferences.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import app.cash.turbine.test
 import id.ninerouter.app.FakeNineRouterApi
 import id.ninerouter.app.R

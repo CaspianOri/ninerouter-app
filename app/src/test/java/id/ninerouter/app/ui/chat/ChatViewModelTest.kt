@@ -1,6 +1,6 @@
 package id.ninerouter.app.ui.chat
 
-import androidx.datastore.preferences.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import id.ninerouter.app.FakeNineRouterApi
 import id.ninerouter.app.data.AiModel
 import id.ninerouter.app.data.ChatHistoryRepository
