@@ -1,13 +1,12 @@
 package id.ninerouter.app.ui.chat
 
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import id.ninerouter.app.FakeNineRouterApi
 import id.ninerouter.app.data.AiModel
 import id.ninerouter.app.data.ChatHistoryRepository
 import id.ninerouter.app.data.ChatMessage
+import id.ninerouter.app.data.FakeChatHistoryRepository
 import id.ninerouter.app.data.NineRouterError
 import id.ninerouter.app.nineRouterFailure
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -25,14 +24,13 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Tests for [ChatViewModel] using a fake API and a temp-file history store
- * (on the test dispatcher, so history round-trips deterministically).
+ * Tests for [ChatViewModel] using a fake API and an in-memory
+ * [FakeChatHistoryRepository] (no IO, so history round-trips deterministically).
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChatViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
-    private val tempFiles = mutableListOf<File>()
 
     private val modelA = AiModel("model-a", "owner")
     private val modelB = AiModel("model-b", "owner")
@@ -45,16 +43,9 @@ class ChatViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-        tempFiles.forEach { it.delete() }
     }
 
-    private fun TestScope.history(): ChatHistoryRepository {
-        val file = File.createTempFile("chat_vm_test", ".preferences_pb").also { it.delete() }
-        tempFiles += file
-        return ChatHistoryRepository(
-            PreferenceDataStoreFactory.create(scope = backgroundScope, produceFile = { file }),
-        )
-    }
+    private fun TestScope.history(): ChatHistoryRepository = FakeChatHistoryRepository()
 
     private fun TestScope.viewModel(
         api: FakeNineRouterApi,

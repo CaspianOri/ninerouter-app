@@ -69,7 +69,7 @@ class ModelsViewModelTest {
         assertFalse(byId.getValue("provider/raw").model.isCombo)
         assertTrue(byId.getValue("combo-c").model.isCombo)
 
-        assertEquals(listOf("combo-a", "provider/raw", "combo-c"), api.probeCalls.sorted())
+        assertEquals(listOf("combo-a", "combo-c", "provider/raw"), api.probeCalls.sorted())
     }
 
     @Test

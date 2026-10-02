@@ -1,17 +1,15 @@
 package id.ninerouter.app.ui.settings
 
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import app.cash.turbine.test
 import id.ninerouter.app.FakeNineRouterApi
 import id.ninerouter.app.R
 import id.ninerouter.app.data.AiModel
-import id.ninerouter.app.data.FakeCredentialStore
+import id.ninerouter.app.data.FakeSettingsRepository
 import id.ninerouter.app.data.NineRouterError
 import id.ninerouter.app.data.ServerConfig
 import id.ninerouter.app.data.SettingsRepository
 import id.ninerouter.app.nineRouterFailure
 import id.ninerouter.app.ui.toErrorMessage
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -29,14 +27,14 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Tests for [SettingsViewModel] using a temp-file DataStore (on the test
- * dispatcher, so every save round-trips deterministically) and a fake API.
+ * Tests for [SettingsViewModel] using an in-memory [FakeSettingsRepository]
+ * (no DataStore IO, so `advanceUntilIdle()` is fully deterministic) and a
+ * fake API.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
-    private val tempFiles = mutableListOf<File>()
 
     @Before
     fun setUp() {
@@ -46,18 +44,9 @@ class SettingsViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-        tempFiles.forEach { it.delete() }
     }
 
-    private fun TestScope.repository(): SettingsRepository {
-        // createTempFile creates the file; delete it so DataStore starts from a clean slate.
-        val file = File.createTempFile("settings_vm_test", ".preferences_pb").also { it.delete() }
-        tempFiles += file
-        return SettingsRepository(
-            PreferenceDataStoreFactory.create(scope = backgroundScope, produceFile = { file }),
-            FakeCredentialStore(),
-        )
-    }
+    private fun TestScope.repository(): SettingsRepository = FakeSettingsRepository()
 
     private fun TestScope.viewModel(api: FakeNineRouterApi): SettingsViewModel {
         val vm = SettingsViewModel(repository(), apiFactory = { _, _ -> api })

@@ -24,7 +24,7 @@ class ChatHistoryRepositoryTest {
     fun setUp() {
         scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         prefsFile = File.createTempFile("chat_history_test", ".preferences_pb").also { it.delete() }
-        repo = ChatHistoryRepository(
+        repo = DataStoreChatHistoryRepository(
             PreferenceDataStoreFactory.create(scope = scope, produceFile = { prefsFile }),
         )
     }

@@ -57,13 +57,19 @@ class ChatViewModel(
 
     /** Switches to [modelId], loading its stored history. */
     fun selectModel(modelId: String) {
+        // Publish the selection synchronously so the UI (and send()) sees it
+        // immediately; the stored history fills in when the load completes.
+        // The guard below drops stale loads if the user switches again fast.
+        _uiState.update { it.copy(selectedModelId = modelId, messages = emptyList(), error = null) }
         viewModelScope.launch {
             val loaded = try {
                 history.load(modelId)
             } catch (e: Exception) {
                 emptyList()
             }
-            _uiState.update { it.copy(selectedModelId = modelId, messages = loaded, error = null) }
+            _uiState.update { state ->
+                if (state.selectedModelId == modelId) state.copy(messages = loaded) else state
+            }
         }
     }
 

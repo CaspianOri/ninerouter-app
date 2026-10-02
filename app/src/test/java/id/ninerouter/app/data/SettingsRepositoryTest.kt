@@ -35,7 +35,7 @@ class SettingsRepositoryTest {
             produceFile = { prefsFile },
         )
         credentialStore = FakeCredentialStore()
-        repo = SettingsRepository(dataStore, credentialStore)
+        repo = DataStoreSettingsRepository(dataStore, credentialStore)
     }
 
     @After
@@ -123,7 +123,7 @@ class SettingsRepositoryTest {
             produceFile = { prefsFile },
         )
         dataStore.edit { it[legacyKey] = "legacy-key" }
-        val migrating = SettingsRepository(dataStore, credentialStore)
+        val migrating = DataStoreSettingsRepository(dataStore, credentialStore)
 
         migrating.migrateLegacyApiKey()
 
@@ -143,7 +143,7 @@ class SettingsRepositoryTest {
             produceFile = { prefsFile },
         )
         dataStore.edit { it[legacyKey] = "legacy-key" }
-        val migrating = SettingsRepository(dataStore, credentialStore)
+        val migrating = DataStoreSettingsRepository(dataStore, credentialStore)
 
         migrating.migrateLegacyApiKey()
 
