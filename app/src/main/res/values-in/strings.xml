@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Indonesian translations; same string names as values/strings.xml -->
+<resources>
+    <string name="app_name">9Router</string>
+    <string name="chat_hint">Ketik pesan…</string>
+    <string name="send">Kirim</string>
+    <string name="retry">Coba lagi</string>
+    <string name="close">Tutup</string>
+    <string name="settings">Pengaturan</string>
+    <string name="providers">Penyedia</string>
+    <string name="models">Model</string>
+    <string name="chat">Chat</string>
+    <string name="empty_chat">Belum ada pesan.</string>
+    <string name="connection_error">Koneksi gagal</string>
+
+    <!-- Settings screen -->
+    <string name="setup_title">Hubungkan ke 9Router</string>
+    <string name="setup_subtitle">Masukkan URL server dan kunci API untuk memulai.</string>
+    <string name="server_url_label">URL dasar server</string>
+    <string name="api_key_label">Kunci API</string>
+    <string name="save">Simpan</string>
+    <string name="test_connection">Uji koneksi</string>
+    <string name="testing">Menguji…</string>
+    <string name="model_count_result">%1$d model ditemukan</string>
+    <string name="settings_saved">Pengaturan tersimpan</string>
+
+    <!-- Models screen -->
+    <string name="combo_badge">COMBO</string>
+    <string name="raw_badge">RAW</string>
+    <string name="status_live">Aktif</string>
+    <string name="status_dead">Mati</string>
+    <string name="status_probing">Memeriksa…</string>
+    <string name="no_models">Tidak ada model. Tarik untuk memuat ulang.</string>
+
+    <!-- Chat screen -->
+    <string name="select_model">Model</string>
+
+    <!-- Error messages -->
+    <string name="error_invalid_key">Kunci API tidak valid (401)</string>
+    <string name="error_model_unavailable">Model tidak tersedia (HTTP %1$d)</string>
+    <string name="error_network">Kesalahan jaringan — periksa URL server</string>
+    <string name="error_server">Kesalahan server (HTTP %1$d)</string>
+    <string name="error_unknown">Kesalahan tidak dikenal: %1$s</string>
+</resources>

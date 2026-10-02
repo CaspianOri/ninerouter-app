@@ -12,4 +12,33 @@
     <string name="chat">Chat</string>
     <string name="empty_chat">No messages yet.</string>
     <string name="connection_error">Connection failed</string>
+
+    <!-- Settings screen -->
+    <string name="setup_title">Connect to 9Router</string>
+    <string name="setup_subtitle">Enter your server URL and API key to get started.</string>
+    <string name="server_url_label">Server base URL</string>
+    <string name="api_key_label">API key</string>
+    <string name="save">Save</string>
+    <string name="test_connection">Test connection</string>
+    <string name="testing">Testing…</string>
+    <string name="model_count_result">%1$d models found</string>
+    <string name="settings_saved">Settings saved</string>
+
+    <!-- Models screen -->
+    <string name="combo_badge">COMBO</string>
+    <string name="raw_badge">RAW</string>
+    <string name="status_live">Live</string>
+    <string name="status_dead">Dead</string>
+    <string name="status_probing">Probing…</string>
+    <string name="no_models">No models found. Pull to refresh.</string>
+
+    <!-- Chat screen -->
+    <string name="select_model">Model</string>
+
+    <!-- Error messages -->
+    <string name="error_invalid_key">Invalid API key (401)</string>
+    <string name="error_model_unavailable">Model unavailable (HTTP %1$d)</string>
+    <string name="error_network">Network error — check server URL</string>
+    <string name="error_server">Server error (HTTP %1$d)</string>
+    <string name="error_unknown">Unknown error: %1$s</string>
 </resources>
