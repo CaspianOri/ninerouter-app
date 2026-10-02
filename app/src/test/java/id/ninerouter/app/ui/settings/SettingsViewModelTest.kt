@@ -197,6 +197,8 @@ class SettingsViewModelTest {
             listModelsHandler = { nineRouterFailure(NineRouterError.NetworkError("timeout")) },
         )
         val vm = viewModel(api)
+        vm.onBaseUrlChange("https://router.example.com")
+        vm.onApiKeyChange("secret-key")
 
         vm.testConnection()
         advanceUntilIdle()
@@ -211,6 +213,8 @@ class SettingsViewModelTest {
             apiFactory = { _, _ -> throw IllegalArgumentException("bad url") },
         )
         advanceUntilIdle()
+        vm.onBaseUrlChange("https://router.example.com")
+        vm.onApiKeyChange("secret-key")
 
         vm.testConnection()
         advanceUntilIdle()

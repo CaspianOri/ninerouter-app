@@ -41,6 +41,14 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            all {
+                testLogging {
+                    events("passed", "skipped", "failed")
+                    exceptionFormat = "full"
+                    showExceptions = true
+                    showCauses = true
+                }
+            }
         }
     }
     packaging {
