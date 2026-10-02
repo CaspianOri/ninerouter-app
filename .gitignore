@@ -1,0 +1,8 @@
+# Android
+*.iml
+.gradle/
+build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/

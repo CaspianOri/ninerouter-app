@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default (fallback) locale: English -->
+<resources>
+    <string name="app_name">9Router</string>
+    <string name="chat_hint">Type a message…</string>
+    <string name="send">Send</string>
+    <string name="retry">Retry</string>
+    <string name="close">Close</string>
+    <string name="settings">Settings</string>
+    <string name="providers">Providers</string>
+    <string name="models">Models</string>
+    <string name="chat">Chat</string>
+    <string name="empty_chat">No messages yet.</string>
+    <string name="connection_error">Connection failed</string>
+</resources>
