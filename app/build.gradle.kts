@@ -1,7 +1,4 @@
-import org.gradle.api.tasks.testing.Test
-
-plugins {
-    alias(libs.plugins.android.application)
+plugins {    alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
@@ -43,15 +40,6 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
-        }
-    }
-    tasks.withType<Test> {
-        testLogging {
-            events("passed", "skipped", "failed")
-            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-            showExceptions = true
-            showCauses = true
-            showStackTraces = true
         }
     }
     packaging {
