@@ -1,5 +1,7 @@
 package id.ninerouter.app.ui.settings
 
+import android.app.Activity
+import android.view.WindowManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,18 +24,22 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import id.ninerouter.app.R
+import id.ninerouter.app.data.maskApiKey
 import id.ninerouter.app.ui.localizedMessage
 
 /**
@@ -54,6 +60,18 @@ fun SettingsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Block screenshots and screen recording: this screen handles the API key.
+    val activity = LocalContext.current as? Activity
+    DisposableEffect(activity) {
+        activity?.window?.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE,
+        )
+        onDispose {
+            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
 
     val errorMessage = state.error?.localizedMessage()
     LaunchedEffect(errorMessage) {
@@ -155,7 +173,25 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
+            if (!setupMode && state.apiKey.isNotBlank()) {
+                Text(
+                    text = stringResource(R.string.current_key, maskApiKey(state.apiKey)),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             Spacer(modifier = Modifier.weight(1f))
+            if (!setupMode) {
+                TextButton(
+                    onClick = viewModel::logout,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        stringResource(R.string.sign_out),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
         }
     }
 }

@@ -23,6 +23,9 @@
     <string name="testing">Testing…</string>
     <string name="model_count_result">%1$d models found</string>
     <string name="settings_saved">Settings saved</string>
+    <string name="sign_out">Clear credentials</string>
+    <string name="signed_out">Credentials cleared</string>
+    <string name="current_key">Current key: %1$s</string>
 
     <!-- Models screen -->
     <string name="combo_badge">COMBO</string>
@@ -37,6 +40,7 @@
 
     <!-- Error messages -->
     <string name="error_invalid_key">Invalid API key (401)</string>
+    <string name="error_invalid_url">Server URL must start with https://</string>
     <string name="error_model_unavailable">Model unavailable (HTTP %1$d)</string>
     <string name="error_network">Network error — check server URL</string>
     <string name="error_server">Server error (HTTP %1$d)</string>

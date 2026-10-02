@@ -2,6 +2,7 @@ package id.ninerouter.app.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
@@ -37,6 +38,10 @@ object Routes {
 /**
  * Root navigation for the app.
  *
+ * The graph is keyed by [setupMode]: clearing credentials (logout) rebuilds
+ * the graph back at the settings route in setup mode, with no back stack
+ * left into the app.
+ *
  * @param config the current server configuration.
  * @param api the API client, or null when [config] is not [isConfigured]
  *   (setup mode: only the settings route is reachable until the user saves).
@@ -60,44 +65,46 @@ fun AppNav(
         factory = ModelsVmFactory(requireApi(api)),
     )
 
-    NavHost(
-        navController = navController,
-        startDestination = startDestination,
-        modifier = modifier,
-    ) {
-        composable(Routes.SETTINGS) {
-            SettingsScreen(
-                viewModel = settingsVm,
-                setupMode = setupMode,
-                onSaved = {
-                    navController.navigate(Routes.MODELS) {
-                        popUpTo(Routes.SETTINGS) { inclusive = true }
-                    }
-                },
-                onNavigateBack = { navController.popBackStack() },
-            )
-        }
-        composable(Routes.MODELS) {
-            ModelsScreen(
-                viewModel = modelsVm,
-                onOpenChat = { navController.navigate(Routes.CHAT) },
-                onOpenSettings = { navController.navigate(Routes.SETTINGS) },
-            )
-        }
-        composable(Routes.CHAT) {
-            val modelsState by modelsVm.uiState.collectAsStateWithLifecycle()
-            val chatVm: ChatViewModel = viewModel(
-                key = "chat:${config.baseUrl}",
-                factory = ChatVmFactory(
-                    requireApi(api),
-                    historyRepository,
-                    modelsState.items.map { it.model },
-                ),
-            )
-            ChatScreen(
-                viewModel = chatVm,
-                onOpenSettings = { navController.navigate(Routes.SETTINGS) },
-            )
+    key(setupMode) {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = modifier,
+        ) {
+            composable(Routes.SETTINGS) {
+                SettingsScreen(
+                    viewModel = settingsVm,
+                    setupMode = setupMode,
+                    onSaved = {
+                        navController.navigate(Routes.MODELS) {
+                            popUpTo(Routes.SETTINGS) { inclusive = true }
+                        }
+                    },
+                    onNavigateBack = { navController.popBackStack() },
+                )
+            }
+            composable(Routes.MODELS) {
+                ModelsScreen(
+                    viewModel = modelsVm,
+                    onOpenChat = { navController.navigate(Routes.CHAT) },
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) },
+                )
+            }
+            composable(Routes.CHAT) {
+                val modelsState by modelsVm.uiState.collectAsStateWithLifecycle()
+                val chatVm: ChatViewModel = viewModel(
+                    key = "chat:${config.baseUrl}",
+                    factory = ChatVmFactory(
+                        requireApi(api),
+                        historyRepository,
+                        modelsState.items.map { it.model },
+                    ),
+                )
+                ChatScreen(
+                    viewModel = chatVm,
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) },
+                )
+            }
         }
     }
 }

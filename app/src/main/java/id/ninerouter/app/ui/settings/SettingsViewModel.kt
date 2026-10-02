@@ -7,6 +7,7 @@ import id.ninerouter.app.data.NineRouterClient
 import id.ninerouter.app.data.NineRouterError
 import id.ninerouter.app.data.NineRouterException
 import id.ninerouter.app.data.SettingsRepository
+import id.ninerouter.app.data.isValidBaseUrl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -59,10 +60,18 @@ class SettingsViewModel(
         _uiState.update { it.copy(apiKey = value) }
     }
 
-    /** Persists the current fields; no-op when either field is blank. */
+    /**
+     * Persists the current fields; no-op when either field is blank.
+     * Rejects non-HTTPS base URLs with [NineRouterError.InvalidUrl] — the API
+     * key must never travel over cleartext.
+     */
     fun save() {
         val state = _uiState.value
         if (state.baseUrl.isBlank() || state.apiKey.isBlank()) return
+        if (!isValidBaseUrl(state.baseUrl)) {
+            _uiState.update { it.copy(error = NineRouterError.InvalidUrl) }
+            return
+        }
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, error = null) }
             try {
@@ -76,12 +85,36 @@ class SettingsViewModel(
         }
     }
 
-    /** Lists models through a throwaway client to verify the current fields. */
+    /**
+     * Wipes the base URL and the encrypted API key, returning the app to the
+     * first-run setup state. The nav graph observes the config flow and
+     * redirects to setup mode automatically.
+     */
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                repository.clear()
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = NineRouterError.Unknown(e.message ?: "sign out failed"))
+                }
+            }
+        }
+    }
+
+    /**
+     * Lists models through a throwaway client to verify the current fields.
+     * Non-HTTPS base URLs fail fast with [NineRouterError.InvalidUrl].
+     */
     fun testConnection() {
         if (_uiState.value.isTesting) return
+        val baseUrl = _uiState.value.baseUrl.trim()
+        if (!isValidBaseUrl(baseUrl)) {
+            _uiState.update { it.copy(error = NineRouterError.InvalidUrl, modelCount = null) }
+            return
+        }
         viewModelScope.launch {
             _uiState.update { it.copy(isTesting = true, error = null, modelCount = null) }
-            val baseUrl = _uiState.value.baseUrl.trim()
             val apiKey = _uiState.value.apiKey.trim()
             val result = runCatching {
                 apiFactory(baseUrl, apiKey).listModels().size

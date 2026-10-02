@@ -18,6 +18,7 @@ data class ErrorMessage(
  * Maps a [NineRouterError] to the user-facing string resource used to display it.
  *
  * - [NineRouterError.Unauthorized] -> "Invalid API key (401)"
+ * - [NineRouterError.InvalidUrl] -> "Server URL must use https://"
  * - [NineRouterError.ModelUnavailable] -> "Model unavailable (HTTP x)"
  * - [NineRouterError.NetworkError] -> "Network error — check server URL"
  * - [NineRouterError.ServerError] -> "Server error (HTTP x)"
@@ -26,6 +27,8 @@ data class ErrorMessage(
 fun NineRouterError.toErrorMessage(): ErrorMessage = when (this) {
     NineRouterError.Unauthorized ->
         ErrorMessage(R.string.error_invalid_key)
+    NineRouterError.InvalidUrl ->
+        ErrorMessage(R.string.error_invalid_url)
     is NineRouterError.ModelUnavailable ->
         ErrorMessage(R.string.error_model_unavailable, arrayOf(httpCode))
     is NineRouterError.NetworkError ->

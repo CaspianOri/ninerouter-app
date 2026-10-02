@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import id.ninerouter.app.FakeNineRouterApi
 import id.ninerouter.app.R
 import id.ninerouter.app.data.AiModel
+import id.ninerouter.app.data.FakeCredentialStore
 import id.ninerouter.app.data.NineRouterError
 import id.ninerouter.app.data.ServerConfig
 import id.ninerouter.app.data.SettingsRepository
@@ -54,6 +55,7 @@ class SettingsViewModelTest {
         tempFiles += file
         return SettingsRepository(
             PreferenceDataStoreFactory.create(scope = backgroundScope, produceFile = { file }),
+            FakeCredentialStore(),
         )
     }
 
@@ -90,6 +92,60 @@ class SettingsViewModelTest {
 
         assertFalse(vm.uiState.value.saved)
         assertNull(vm.uiState.value.error)
+    }
+
+    @Test
+    fun `save rejects plain http url with InvalidUrl`() = runTest(testDispatcher) {
+        val repository = repository()
+        val vm = SettingsViewModel(repository, apiFactory = { _, _ -> FakeNineRouterApi() })
+        advanceUntilIdle()
+
+        vm.onBaseUrlChange("http://router.example.com")
+        vm.onApiKeyChange("secret-key")
+        vm.save()
+        advanceUntilIdle()
+
+        assertFalse(vm.uiState.value.saved)
+        assertEquals(NineRouterError.InvalidUrl, vm.uiState.value.error)
+        repository.serverConfig.test {
+            assertEquals(ServerConfig("", ""), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `testConnection rejects plain http url without calling the api`() = runTest(testDispatcher) {
+        val api = FakeNineRouterApi(models = listOf(AiModel("combo-a", "owner")))
+        val vm = viewModel(api)
+
+        vm.onBaseUrlChange("http://router.example.com")
+        vm.onApiKeyChange("secret-key")
+        vm.testConnection()
+        advanceUntilIdle()
+
+        assertEquals(NineRouterError.InvalidUrl, vm.uiState.value.error)
+        assertNull(vm.uiState.value.modelCount)
+        assertEquals(0, api.listModelsCalls.size)
+    }
+
+    @Test
+    fun `logout clears the stored credentials`() = runTest(testDispatcher) {
+        val repository = repository()
+        val vm = SettingsViewModel(repository, apiFactory = { _, _ -> FakeNineRouterApi() })
+        advanceUntilIdle()
+        vm.onBaseUrlChange("https://router.example.com")
+        vm.onApiKeyChange("secret-key")
+        vm.save()
+        advanceUntilIdle()
+        assertTrue(vm.uiState.value.saved)
+
+        vm.logout()
+        advanceUntilIdle()
+
+        repository.serverConfig.test {
+            assertEquals(ServerConfig("", ""), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test

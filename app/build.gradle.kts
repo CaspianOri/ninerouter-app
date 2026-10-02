@@ -19,7 +19,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8: shrink + obfuscate release builds (no analytics/crash SDKs are bundled).
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -63,6 +65,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.security.crypto)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)

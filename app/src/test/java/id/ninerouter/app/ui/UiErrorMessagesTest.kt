@@ -17,6 +17,14 @@ class UiErrorMessagesTest {
     }
 
     @Test
+    fun `InvalidUrl maps to the invalid url string`() {
+        val message = NineRouterError.InvalidUrl.toErrorMessage()
+
+        assertEquals(R.string.error_invalid_url, message.resId)
+        assertEquals(0, message.args.size)
+    }
+
+    @Test
     fun `ModelUnavailable maps to the model unavailable string with the http code`() {
         val message = NineRouterError.ModelUnavailable(503).toErrorMessage()
 

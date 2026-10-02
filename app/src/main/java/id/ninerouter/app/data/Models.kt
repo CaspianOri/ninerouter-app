@@ -26,6 +26,9 @@ sealed interface NineRouterError {
     /** The API key was rejected (HTTP 401). Never retry with the same key. */
     data object Unauthorized : NineRouterError
 
+    /** The configured server URL is not a valid HTTPS URL. */
+    data object InvalidUrl : NineRouterError
+
     /** The model is dead or unknown (HTTP 404/503). */
     data class ModelUnavailable(val httpCode: Int) : NineRouterError
 

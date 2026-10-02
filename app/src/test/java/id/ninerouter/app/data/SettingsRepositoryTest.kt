@@ -1,6 +1,8 @@
 package id.ninerouter.app.data
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import app.cash.turbine.test
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +22,7 @@ class SettingsRepositoryTest {
 
     private lateinit var scope: CoroutineScope
     private lateinit var prefsFile: File
+    private lateinit var credentialStore: FakeCredentialStore
     private lateinit var repo: SettingsRepository
 
     @Before
@@ -31,7 +34,8 @@ class SettingsRepositoryTest {
             scope = scope,
             produceFile = { prefsFile },
         )
-        repo = SettingsRepository(dataStore)
+        credentialStore = FakeCredentialStore()
+        repo = SettingsRepository(dataStore, credentialStore)
     }
 
     @After
@@ -89,5 +93,60 @@ class SettingsRepositoryTest {
             assertEquals(ServerConfig("", ""), awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `api key is stored in credential store not plain datastore`() = runBlocking {
+        repo.save("https://router.example.com", "secret-key")
+
+        // The encrypted store holds the key...
+        assertEquals("secret-key", credentialStore.getApiKey())
+        // ...and the plain DataStore file contains no trace of it.
+        val raw = prefsFile.readText()
+        assertFalse(raw.contains("secret-key"))
+    }
+
+    @Test
+    fun `clear wipes the encrypted key`() = runBlocking {
+        repo.save("https://router.example.com", "secret-key")
+        repo.clear()
+
+        assertEquals(null, credentialStore.getApiKey())
+    }
+
+    @Test
+    fun `migrateLegacyApiKey moves plain key into encrypted store`() = runBlocking {
+        // Simulate an old install: key sitting in the plain DataStore.
+        val legacyKey = stringPreferencesKey("server_api_key")
+        val dataStore = PreferenceDataStoreFactory.create(
+            scope = scope,
+            produceFile = { prefsFile },
+        )
+        dataStore.edit { it[legacyKey] = "legacy-key" }
+        val migrating = SettingsRepository(dataStore, credentialStore)
+
+        migrating.migrateLegacyApiKey()
+
+        assertEquals("legacy-key", credentialStore.getApiKey())
+        migrating.serverConfig.test {
+            assertEquals(ServerConfig("", "legacy-key"), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `migrateLegacyApiKey does not overwrite an existing encrypted key`() = runBlocking {
+        credentialStore.saveApiKey("new-key")
+        val legacyKey = stringPreferencesKey("server_api_key")
+        val dataStore = PreferenceDataStoreFactory.create(
+            scope = scope,
+            produceFile = { prefsFile },
+        )
+        dataStore.edit { it[legacyKey] = "legacy-key" }
+        val migrating = SettingsRepository(dataStore, credentialStore)
+
+        migrating.migrateLegacyApiKey()
+
+        assertEquals("new-key", credentialStore.getApiKey())
     }
 }

@@ -13,11 +13,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import id.ninerouter.app.data.ChatHistoryRepository
+import id.ninerouter.app.data.EncryptedCredentialStore
 import id.ninerouter.app.data.SettingsRepository
 import id.ninerouter.app.data.settingsDataStore
 import id.ninerouter.app.ui.AppNav
 import id.ninerouter.app.ui.rememberApiClient
+import kotlinx.coroutines.launch
 
 /**
  * Entry point of the 9Router app.
@@ -29,7 +32,16 @@ import id.ninerouter.app.ui.rememberApiClient
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val settingsRepository = SettingsRepository(applicationContext.settingsDataStore)
+        // The API key lives in encrypted storage (AndroidX Security); the
+        // base URL stays in DataStore. Migrate any legacy plain-DataStore key
+        // exactly once before the UI reads the config.
+        val settingsRepository = SettingsRepository(
+            applicationContext.settingsDataStore,
+            EncryptedCredentialStore(applicationContext),
+        )
+        lifecycleScope.launch {
+            settingsRepository.migrateLegacyApiKey()
+        }
         val historyRepository = ChatHistoryRepository(applicationContext.settingsDataStore)
         setContent {
             MaterialTheme {
